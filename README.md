@@ -24,6 +24,7 @@ config :logger,
   backends: [LoggerStatsderlBackend]
 
 config :logger, LoggerStatsderlBackend,
-  level: :warn
+  level: :warn, # meant warnings and errors
+  prefix: "my_app.logger_messages" # prefix of graphite key
 ```
 

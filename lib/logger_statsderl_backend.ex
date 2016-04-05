@@ -18,8 +18,8 @@ defmodule LoggerStatsderlBackend do
 
   def handle_event({level, _gl, _event}, state) do
     if meet_level?(level, state.level) do
-      IO.puts "==== #{inspect :erlang.atom_to_binary(level, :latin1)}"
-      statsderl:increment(:erlang.atom_to_binary(level, :latin1), 1, 1)
+      key = state.prefix <> :erlang.atom_to_binary(level, :latin1)
+      :statsderl.increment(key, 1, 1)
     end
     {:ok, state}
   end
@@ -36,7 +36,15 @@ defmodule LoggerStatsderlBackend do
       |> Keyword.merge(opts)
     Application.put_env(:logger, __MODULE__, config)
 
-    %{level: Keyword.get(config, :level, :error)}
+    prefix = case Keyword.get(config, :prefix, false) do
+      false -> ""
+      value -> String.strip(value, ?.) <> "."
+    end
+
+    %{
+      level: Keyword.get(config, :level, :error),
+      prefix: prefix,
+    }
   end
 
 end
